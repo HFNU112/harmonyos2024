@@ -16,5 +16,33 @@ function printNumberOrString(message: number | string | boolean) {
     console.log(message)
 }
 printNumberOrString('abc')
-printNumberOrString(123) 
-printNumberOrString(true)   
+printNumberOrString(123)
+printNumberOrString(true)
+
+// 任意类型的值
+function print(message: any) {
+    console.log(message)
+}
+print(123)
+print('abc')
+print('2024-06-27')
+
+// 函数的返回值类型可根据函数内容推断
+function sum(a: number, b: number) {
+    return a + b;
+}
+
+console.log(typeof sum(2, 3));
+
+// 匿名函数
+let arr: number[] = [1, 2, 3, 4, 5]
+arr.forEach(numbers)
+function numbers(item: number) {
+    console.log(item)
+}
+
+// 箭头函数
+let arr2: number[] = [1, 2, 3, 4, 5]
+arr2.forEach((item) => {
+    console.log(item);
+})
