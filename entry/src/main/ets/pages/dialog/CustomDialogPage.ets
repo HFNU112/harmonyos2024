@@ -42,7 +42,6 @@ struct TextInputDialog {
 
   confirm:(value: string) => void
   value: string = ''
-
   build() {
     Column({space: 20}) {
       Text('请输入你的答案')
