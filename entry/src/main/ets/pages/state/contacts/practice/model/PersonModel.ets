@@ -1,5 +1,6 @@
 let nextId = 1;
 
+@Observed
 export class Person {
 
   id: number; //编号

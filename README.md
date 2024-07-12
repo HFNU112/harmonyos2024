@@ -16,7 +16,9 @@
 
 #### 演示
 
-1.  xxxx
+1.  联系人状态管理组件
+
+![harmony_contacts](https://harmonyos2024-ui.oss-cn-shanghai.aliyuncs.com/state-management/harmony_contacts.gif?Expires=1720772587&OSSAccessKeyId=TMP.3KfccTKLY44qHozJfQirciK3TBJpCunRoBG9h9Sxrd8dzp8eQnmbQB3UMyLGkASWn6BKq7uRoH9iJjEjnzMrQ6pe2gDSY5&Signature=usEG3jnRMWVdzgssoeDmIj8NqCM%3D)
 
 #### 使用说明
 

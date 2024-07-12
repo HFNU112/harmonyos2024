@@ -12,12 +12,22 @@
  * 7、在完成多选操作后，点击删除按钮，需要将选中的联系⼈从 persons 数组中移除。*
  */
 import { getRandomName, getRandomPhone } from '../../../../util/RandomUtil'
+import { ContactItem } from './ContactItem'
 import { Person } from './model/PersonModel'
 
 @Entry
 @Component
 struct ContactList {
+
   @State persons: Person[] = [new Person(getRandomName(), getRandomPhone())]
+
+  //当前展开的联系人id
+  @State currentExpandId: number = -1
+
+  //选择模式 普通/选择
+  @State isSelectMode: boolean = false
+
+  @State selectedIdList: number[] = []
 
   build() {
     Column() {
@@ -26,10 +36,16 @@ struct ContactList {
         Text('联系人')
           .titleStyle()
         Blank()
-        Button('选择')
+        Button(this.isSelectMode ? '取消' : '选择')
           .buttonStyles(Color.Gray)
+          .onClick(() => {
+            this.isSelectMode = !this.isSelectMode
+            this.selectedIdList = []
+          })
         Button('+')
           .buttonStyles(Color.Gray)
+          // 新增元素 向数组中push元素
+          .onClick(() => {this.persons.push(new Person(getRandomName(), getRandomPhone()))})
       }
       .width('100%')
       .height(60)
@@ -38,26 +54,13 @@ struct ContactList {
       List({ space: 10 }) {
         ForEach(this.persons, (person: Person) => {
           ListItem() {
-            Row({space: 10}) {
-              // 头像
-              Image($r('app.media.img_user_avatar'))
-                .width(40)
-                .height(40)
-              //姓名
-              Text(person.name)
-                .fontSize(20)
-                .fontWeight(500)
-              Blank()
-              //收藏
-              Image($r('app.media.ic_star_empty'))
-                .width(30)
-                .height(30)
-            }
-            .backgroundColor(Color.White)
-            .padding(10)
-            .borderRadius(10)
-            .width('100%')
-            .height(70)
+            // 联系人
+            ContactItem({
+              person: person,
+              currentExpandId: $currentExpandId,
+              isSelectMode: this.isSelectMode,
+              selectedIdList: $selectedIdList
+            })
           }
         })
       }
@@ -65,9 +68,15 @@ struct ContactList {
       .layoutWeight(1)
 
       //删除按钮
-      Button('删除')
-        .buttonStyles(Color.Red)
-        .margin({ top: 10 })
+      if (this.isSelectMode) {
+        Button('删除')
+          .buttonStyles(Color.Red)
+          .margin({ top: 10 })
+          .onClick(() => {
+            this.persons = this.persons.filter(person => this.selectedIdList.includes(person.id))
+          })
+      }
+
     }
     .width('100%')
     .height('100%')
