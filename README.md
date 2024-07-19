@@ -1,30 +1,37 @@
 # harmonyos2024
 
-#### 介绍
+## 介绍
 鸿蒙5.0.3.403_2024
 
-#### 软件架构
+## 软件架构
 
 > 常用组件
 
+Progress、Button、Image、Text、TextTimmer
 
 > 常用布局
 
+Column、Row
 
 > 组件状态管理
 
+@State、@Pop、@Link、@Watch
 
-#### 演示
+
+## 演示
 
 1.  联系人状态管理组件
 
 ![harmony_contacts](https://harmonyos2024-ui.oss-cn-shanghai.aliyuncs.com/state-management/harmony_contacts.gif)
 
-#### 使用说明
+## HarmonyOS单词打卡学习App需求说明
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+### 单词打卡App页面答题模块布局样式
+
+### 单词打卡App页面答题模块切题逻辑
+
+### 单词打卡App页面答题模块题目判断正误
+
 
 #### 参与贡献
 

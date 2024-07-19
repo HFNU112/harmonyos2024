@@ -1,5 +1,5 @@
-import { AnswerEnum } from '../enums/AnswerEnum'
 import { AnswerStatus } from '../enums/AnswerStatusEnum'
+import { AnswerPracticeStatus } from '../enums/AnswerPracticeStatusEnum'
 import { getRandomQuestion, Questions } from '../model/Questions'
 import { promptAction } from '@kit.ArkUI'
 import { OptionsStatus } from '../enums/OptionsStatus'
@@ -7,26 +7,27 @@ import { OptionsStatus } from '../enums/OptionsStatus'
 @Entry
 @Component
 struct WordsAnswerPage {
-  @State answerStatus: AnswerStatus = AnswerStatus.Stopped
-  @State questions: Questions[] = getRandomQuestion(3)
+  @State answerPracticeStatus: AnswerPracticeStatus = AnswerPracticeStatus.Stopped
+  @State questions: Questions[] = getRandomQuestion(5)
   @State currentIndex: number = 0
-  @State answer: AnswerEnum = AnswerEnum.answering
+  @State answerStatus: AnswerStatus = AnswerStatus.answering
+  @State selectedOption: string = ''
 
   startPractice() {
     //1、修改状态变量
-    this.answerStatus = AnswerStatus.Running
+    this.answerPracticeStatus = AnswerPracticeStatus.Running
     //TODO 2、启动计时器
   }
 
   PausePractice() {
     //1、修改状态变量
-    this.answerStatus = AnswerStatus.Paused
+    this.answerPracticeStatus = AnswerPracticeStatus.Paused
     //TODO 2、暂停计时器
   }
 
   stopPractice() {
     //1、修改状态变量
-    this.answerStatus = AnswerStatus.Stopped
+    this.answerPracticeStatus = AnswerPracticeStatus.Stopped
     //TODO 2、停止计时器
 
     //TODO 3、停止弹窗
@@ -54,31 +55,38 @@ struct WordsAnswerPage {
       // 选项
       Column({ space: 10 }) {
         ForEach(this.questions[this.currentIndex].option, (option: string) => {
-          OptionButton({option: option})
-            .enabled(this.answer === AnswerEnum.answering)
+          OptionButton({
+            option: option,
+            answerStatus: this.answerStatus,
+            answer: this.questions[this.currentIndex].answer,
+            selectedOption: this.selectedOption
+          })
+            .enabled(this.answerStatus === AnswerStatus.answering)
             .onClick(() => {
               // 判断练习状态
-              if (this.answerStatus !== AnswerStatus.Running) {
+              if (this.answerPracticeStatus !== AnswerPracticeStatus.Running) {
                 promptAction.showToast({ message: '请先点击开始测试' })
                 return
               }
 
-              // TODO 判断正误
+              //  判断正误 任意的选项赋值给选择的选项
+              this.selectedOption = option
 
               // TODO 统计答题信息
 
               // 切换题目
-              this.answer = AnswerEnum.answered
+              this.answerStatus = AnswerStatus.answered
               if (this.currentIndex < this.questions.length - 1) {
                 setTimeout(() => {
                   this.currentIndex++
-                  this.answer = AnswerEnum.answering
+                  this.answerStatus = AnswerStatus.answering
                 }, 1000)
               } else {
                 this.stopPractice()
               }
             })
-        })
+        }, (option: string) => this.questions[this.currentIndex].word + '-' +
+        option.toString()) //option => this.questions[this.currentIndex].word + '-' + option
       }
 
       // 控制按钮
@@ -86,23 +94,23 @@ struct WordsAnswerPage {
         Button('停止测试')
           .controlButtonStyle({
             bg: Color.Transparent,
-            border: this.answerStatus === AnswerStatus.Stopped ? Color.Gray : Color.Black,
-            font: this.answerStatus === AnswerStatus.Stopped ? Color.Gray : Color.Black
+            border: this.answerPracticeStatus === AnswerPracticeStatus.Stopped ? Color.Gray : Color.Black,
+            font: this.answerPracticeStatus === AnswerPracticeStatus.Stopped ? Color.Gray : Color.Black
           })
-          .enabled(this.answerStatus !== AnswerStatus.Stopped)
+          .enabled(this.answerPracticeStatus !== AnswerPracticeStatus.Stopped)
           .onClick(() => {
             // 停止测试
             this.stopPractice()
           })
-        Button(this.answerStatus === AnswerStatus.Running ? '暂停测试' : '开始测试')
+        Button(this.answerPracticeStatus === AnswerPracticeStatus.Running ? '暂停测试' : '开始测试')
           .controlButtonStyle({
-            bg: this.answerStatus === AnswerStatus.Running ? '#555555' : Color.Black,
-            border: this.answerStatus === AnswerStatus.Running ? '#555555' : Color.Black,
+            bg: this.answerPracticeStatus === AnswerPracticeStatus.Running ? '#555555' : Color.Black,
+            border: this.answerPracticeStatus === AnswerPracticeStatus.Running ? '#555555' : Color.Black,
             font: Color.White
           })
           .stateEffect(false)
           .onClick(() => {
-            if (this.answerStatus === AnswerStatus.Running) {
+            if (this.answerPracticeStatus === AnswerPracticeStatus.Running) {
               // 暂停测试
               this.PausePractice()
             } else {
@@ -118,17 +126,35 @@ struct WordsAnswerPage {
 
 @Component
 struct OptionButton {
-  option: string=''
+  option: string = ''
+  answer: string = ''
   @State optionStatus: OptionsStatus = OptionsStatus.default
+  @Prop selectedOption: string
+  @Prop @Watch('onListenAnswerStatusChange') answerStatus: AnswerStatus
 
-  getBgColor(){
+  // 声明按钮状态和颜色的逻辑
+  onListenAnswerStatusChange() {
+    // 判断是否正确答案
+    if (this.option === this.answer) {
+      this.optionStatus = OptionsStatus.right
+    } else {
+      // 是当前单词但不是正确答案
+      if (this.option === this.selectedOption) {
+        this.optionStatus = OptionsStatus.error
+      } else {
+        this.optionStatus = OptionsStatus.default
+      }
+    }
+  }
+
+  getBgColor() {
     switch (this.optionStatus) {
       case OptionsStatus.right:
-        return '#00c500'
+        return '#1dbf7b'
       case OptionsStatus.error:
         return '#ee1c26'
-      default :
-      return '#fdfdfd'
+      default:
+        return '#fdfdfd'
     }
   }
 
@@ -137,19 +163,19 @@ struct OptionButton {
       Button(this.option)
         .optionsButtonStyle({
           bg: this.getBgColor(),
-          font: (this.optionStatus === OptionsStatus.default) ? '#060606' : '#fdfdfd'
+          font: this.optionStatus === OptionsStatus.default ? '#060606' : '#fdfdfd'
         })
-
+      // 判断正确图片
       if (this.optionStatus === OptionsStatus.right) {
         Image($r('app.media.ic_right'))
           .width(22)
           .height(22)
-          .offset({x:10})
-      }else if (this.optionStatus === OptionsStatus.error) {
+          .offset({ x: 10 })
+      } else if (this.optionStatus === OptionsStatus.error) {
         Image($r('app.media.ic_wrong'))
           .width(22)
           .height(22)
-          .offset({x:10})
+          .offset({ x: 10 })
       }
     }
     .alignContent(Alignment.Start)

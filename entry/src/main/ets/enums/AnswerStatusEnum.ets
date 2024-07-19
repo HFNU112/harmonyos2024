@@ -1,7 +1,6 @@
 export enum AnswerStatus {
-  Running,  // 答题状态
 
-  Paused,  // 暂停状态
+  answering, // 正在作答
 
-  Stopped  // 停止状态
+  answered // 作答完毕
 }
